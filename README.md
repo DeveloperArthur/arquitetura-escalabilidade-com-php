@@ -1,12 +1,14 @@
 # Projeto do curso de _Arquitetura e Escalabilidade em PHP_
 
-Nesse curso temos uma aplicação legada em PHP, com bastante problemas de performance, disponibilidade etc:
+Nesse curso tínhamos uma aplicação legada em PHP, com bastante problemas de performance, disponibilidade etc:
 
 <img src="./assets/legacy.webp">
 
-E vamos aprender como melhorar arquitetura dessa aplicação para que ela tenha escalabilidade
+E aprendemos como melhorar arquitetura dessa aplicação para que ela tenha escalabilidade
 
 Como? Reescrevendo em Golang? Quebrando em microserviços? NÃO!
+
+Configurando load balancer e replicando instâncias do monolito, utilizando processamento assíncrono com mensageria, 
 
 Utilizando processamento assíncrono, cache, escalabilidade horizontal
 
@@ -22,7 +24,18 @@ interface diz pro sistema do Laravel que o email não precisa ser enviado na hor
 armazenado em uma fila e depois processamos essa fila, além disso foi necessário executar 
 `docker compose exec app php artisan queue:work` no terminal, para startar o Queue worker, processo que vai ler as 
 mensagens da fila de mensagens
+    
+    O Queue Worker processa uma mensagem de cada vez, acaso a gente tenha muitas mensagens na fila, e o envio de email 
+demorar, precisaríamos apenas executar `docker compose exec app php artisan queue:work` novamente, e estaríamos criando 
+outro worker, escalando horizontalmente nossos processos responsáveis por ler as mensagens
   
+- Fizemos um teste de carga na aplicação simulando 10 conexões simultâneas, utilizando 4 threads para enviar 
+requisições em paralelo durante 10 segundos, nossa API conseguiu processar 709 requests, com média de 70 requests por 
+segundo, precisávamos ser capazes de lidar com um volume maior de requests nesse período de tempo
+    
+    Para resolver esse problema escalamos a API horizontalmente, [colocando um load balancer na frente, e 
+replicando a instância do monolito](), após essa alteração, rodando o mesmo teste de carga e nossa arquitetura
+conseguiu processar 1125 requests, com média de 112 requests por segundo, conseguimos alcançar um número maior de requests
 
 Solução final após todas aplicações de melhorias:
 
