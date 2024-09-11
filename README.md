@@ -40,7 +40,7 @@ conseguiu processar 1125 requests, com média de 112 requests por segundo, conse
 - Escalando aplicação horizontalmente, nos deparamos com um problema na autenticação do usuário, esse sistema 
 utilizava autenticação por meio de sessões, e sessões ficam salvas no servidor, como temos N instâncias de servidor, 
 as sessões estavam produzindo inconsistencia no login do usuário, [fizemos uma alteração para autenticar o usuário por
-meio de token, invés de sessão](), para garantir a consistência do login
+meio de token, invés de sessão](https://github.com/DeveloperArthur/arquitetura-escalabilidade-com-php/commit/2dbbeed413c0fc999896ce7aaf8210cc0686a820), para garantir a consistência do login
 
 
 Solução final após todas aplicações de melhorias:
