@@ -1,5 +1,33 @@
 # Projeto do curso de _Arquitetura e Escalabilidade em PHP_
 
+Nesse curso temos uma aplicação legada em PHP, com bastante problemas de performance, disponibilidade etc:
+
+<img src="./assets/legacy.webp">
+
+E vamos aprender como melhorar arquitetura dessa aplicação para que ela tenha escalabilidade
+
+Como? Reescrevendo em Golang? Quebrando em microserviços? NÃO!
+
+Utilizando processamento assíncrono, cache, escalabilidade horizontal
+
+## Problemas na arquitetura e decisões de resolução
+
+- A request para cadastrar uma avaliação estava respondendo com muita lentidão, porque além de salvar o registro no banco
+de dados, a API também estava se comunicando com um servidor externo para envio de email de maneira síncrona e bloqueante,
+mas como a pessoa que está adicionando a avaliação não precisa esperar que o especialista receba o e-mail, tornamos o
+envio do email assíncrono:
+    
+    Para resolvermos esse problema, fizemos a classe `ReviewCreated` implementar a interface `ShouldQueue`, essa 
+interface diz pro sistema do Laravel que o email não precisa ser enviado na hora, pode ser enviado depois, vai ser 
+armazenado em uma fila e depois processamos essa fila, além disso foi necessário executar 
+`docker compose exec app php artisan queue:work` no terminal, para startar o Queue worker, processo que vai ler as 
+mensagens da fila de mensagens
+  
+
+Solução final após todas aplicações de melhorias:
+
+<img src="./assets/after.webp">
+
 ## Setup inicial
 
 1. Após realizar o clone do projeto, instale as dependências do mesmo com:
