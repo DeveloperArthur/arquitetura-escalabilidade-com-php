@@ -42,6 +42,9 @@ utilizava autenticação por meio de sessões, e sessões ficam salvas no servid
 as sessões estavam produzindo inconsistencia no login do usuário, [fizemos uma alteração para autenticar o usuário por
 meio de token, invés de sessão](), para garantir a consistência do login
 
+  Há ainda uma outra alternativa: armazenar as sessões em um servidor externo. Isso resolve o problema de sessões com o 
+balanceamento de carga também, mas traz outro componente que devemos gerenciar em nossa infraestrutura.
+
 
 Solução final após todas aplicações de melhorias:
 
