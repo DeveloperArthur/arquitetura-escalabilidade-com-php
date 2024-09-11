@@ -37,6 +37,12 @@ segundo, precisávamos ser capazes de lidar com um volume maior de requests ness
 replicando a instância do monolito](), após essa alteração, rodando o mesmo teste de carga e nossa arquitetura
 conseguiu processar 1125 requests, com média de 112 requests por segundo, conseguimos alcançar um número maior de requests
 
+- Escalando aplicação horizontalmente, nos deparamos com um problema na autenticação do usuário, esse sistema 
+utilizava autenticação por meio de sessões, e sessões ficam salvas no servidor, como temos N instâncias de servidor, 
+as sessões estavam produzindo inconsistencia no login do usuário, [fizemos uma alteração para autenticar o usuário por
+meio de token, invés de sessão](), para garantir a consistência do login
+
+
 Solução final após todas aplicações de melhorias:
 
 <img src="./assets/after.webp">
@@ -81,3 +87,9 @@ docker compose exec app php artisan migrate --seed
 ```
 
 Muitos dados serão criados (1000 especialistas com 1000 avaliações cada), então essa última etapa será demorada. Enquanto ela executa, a API já estará acessível através do endereço http://localhost:8123/api. Além disso, o endereço http://localhost:8025 provê acesso ao serviço de e-mail _Mailpit_.
+
+## Para se autenticar na aplicação:
+    {
+        "email": "email@example.com",
+        "password": "12345678"
+    }
