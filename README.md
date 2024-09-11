@@ -1,21 +1,23 @@
 # Projeto do curso de _Arquitetura e Escalabilidade em PHP_
 
-Nesse curso tínhamos uma aplicação legada em PHP, com bastante problemas de performance, disponibilidade etc:
+Nesse curso tínhamos uma aplicação legada em PHP, cheia de problemas de performance, disponibilidade etc:
 
 <img src="./assets/legacy.webp">
 
 E aprendemos como melhorar arquitetura dessa aplicação para que ela tenha escalabilidade
 
-Como? Reescrevendo em Golang? Quebrando em microserviços? NÃO!
+Como? Reescrevendo em Golang? Quebrando em microserviços? Escalando o banco de dados com RDS Aurora? NÃO!
 
 Configurando load balancer e replicando instâncias do monolito, utilizando processamento assíncrono com mensageria, 
+cache distribuído
 
 Utilizando processamento assíncrono, cache, escalabilidade horizontal
 
 ## Problemas na arquitetura e decisões de resolução
 
-- A request para cadastrar uma avaliação estava respondendo com muita lentidão, porque além de salvar o registro no banco
-de dados, a API também estava se comunicando com um servidor externo para envio de email de maneira síncrona e bloqueante,
+- A request para cadastrar uma avaliação estava respondendo com muita lentidão (181ms, os outros 
+endpoints retornam com 80ms em média), porque além de salvar o registro no banco de dados, a API também estava se 
+comunicando com um servidor externo para envio de email de maneira síncrona e bloqueante,
 mas como a pessoa que está adicionando a avaliação não precisa esperar que o especialista receba o e-mail, tornamos o
 envio do email assíncrono:
     
@@ -23,7 +25,7 @@ envio do email assíncrono:
 interface diz pro sistema do Laravel que o email não precisa ser enviado na hora, pode ser enviado depois, vai ser 
 armazenado em uma fila e depois processamos essa fila, além disso foi necessário executar 
 `docker compose exec app php artisan queue:work` no terminal, para startar o Queue worker, processo que vai ler as 
-mensagens da fila de mensagens
+mensagens da fila de mensagens, com isso a resposta para o cadastro caiu para 136ms
     
     O Queue Worker processa uma mensagem de cada vez, acaso a gente tenha muitas mensagens na fila, e o envio de email 
 demorar, precisaríamos apenas executar `docker compose exec app php artisan queue:work` novamente, e estaríamos criando 
@@ -45,6 +47,10 @@ meio de token, invés de sessão](https://github.com/DeveloperArthur/arquitetura
   Há ainda uma outra alternativa: armazenar as sessões em um servidor externo. Isso resolve o problema de sessões com o 
 balanceamento de carga também, mas traz outro componente que devemos gerenciar em nossa infraestrutura.
 
+- Temos um endpoint nessa aplicação que lista os 10 profissionais mais bem avaliados, esse endpoint é muito lento,
+ele responde em 5 segundos em média, pois se trata de uma query pesada e complexa, com join e há muitos dados na aplicação 
+
+    Para resolver esse problema [implementamos um cache distribuído na aplicação](), e o tempo de resposta caiu para 90ms
 
 Solução final após todas aplicações de melhorias:
 
