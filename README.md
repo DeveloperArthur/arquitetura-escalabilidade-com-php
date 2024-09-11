@@ -34,7 +34,7 @@ requisições em paralelo durante 10 segundos, nossa API conseguiu processar 709
 segundo, precisávamos ser capazes de lidar com um volume maior de requests nesse período de tempo
     
     Para resolver esse problema escalamos a API horizontalmente, [colocando um load balancer na frente, e 
-replicando a instância do monolito](), após essa alteração, rodando o mesmo teste de carga e nossa arquitetura
+replicando a instância do monolito](https://github.com/DeveloperArthur/arquitetura-escalabilidade-com-php/commit/280ee6544f8c360d247143c983e3ec9f7ca2c765), após essa alteração, rodando o mesmo teste de carga e nossa arquitetura
 conseguiu processar 1125 requests, com média de 112 requests por segundo, conseguimos alcançar um número maior de requests
 
 - Escalando aplicação horizontalmente, nos deparamos com um problema na autenticação do usuário, esse sistema 
