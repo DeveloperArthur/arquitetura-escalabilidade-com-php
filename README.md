@@ -17,7 +17,7 @@ de dados, a API também estava se comunicando com um servidor externo para envio
 mas como a pessoa que está adicionando a avaliação não precisa esperar que o especialista receba o e-mail, tornamos o
 envio do email assíncrono:
     
-    Para resolvermos esse problema, fizemos a classe `ReviewCreated` implementar a interface `ShouldQueue`, essa 
+    Para resolvermos esse problema, fizemos a classe `app/Mail/ReviewCreated.php` implementar a interface `ShouldQueue`, essa 
 interface diz pro sistema do Laravel que o email não precisa ser enviado na hora, pode ser enviado depois, vai ser 
 armazenado em uma fila e depois processamos essa fila, além disso foi necessário executar 
 `docker compose exec app php artisan queue:work` no terminal, para startar o Queue worker, processo que vai ler as 
