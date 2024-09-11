@@ -50,7 +50,7 @@ balanceamento de carga também, mas traz outro componente que devemos gerenciar 
 - Temos um endpoint nessa aplicação que lista os 10 profissionais mais bem avaliados, esse endpoint é muito lento,
 ele responde em 5 segundos em média, pois se trata de uma query pesada e complexa, com join e há muitos dados na aplicação 
 
-    Para resolver esse problema [implementamos um cache distribuído na aplicação](), e o tempo de resposta caiu para 90ms
+    Para resolver esse problema [implementamos um cache distribuído na aplicação](https://github.com/DeveloperArthur/arquitetura-escalabilidade-com-php/commit/5aee43ee2b0c01ecf1bdabf34d14fe9d3f04b20b), e o tempo de resposta caiu para 90ms
 
 Solução final após todas aplicações de melhorias:
 
