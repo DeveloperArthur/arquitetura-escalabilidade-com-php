@@ -10,7 +10,7 @@ E aplicamos diversas melhorias para deixar arquitetura dessa aplicação mais es
 Como? Reescrevendo em Golang? Quebrando em microserviços? Migrando o banco SQL para MongoDB? NÃO!
 
 Configurando load balancer e replicando instâncias do monolito, utilizando processamento assíncrono com mensageria, 
-cache distribuído para performance em consultas, armazenamento externo para persistência de relatórios CVS e mais!
+cache distribuído para performance em consultas, armazenamento externo arquivos estáticos e mais!
 
 ## Problemas na arquitetura e decisões de resolução
 
