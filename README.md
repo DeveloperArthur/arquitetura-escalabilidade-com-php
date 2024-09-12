@@ -1,7 +1,7 @@
 # Projeto do curso de _Arquitetura e Escalabilidade em PHP_
 
 Nesse curso tínhamos uma aplicação monolita legada em PHP, cheia de problemas de performance, disponibilidade, não
-escala quando o volume de requests crescem, etc:
+escala quando o volume de requests crescem, possuí chamadas síncronas em queries que demandam muito processamento, etc:
 
 <img src="./assets/legacy.webp">
 
@@ -10,9 +10,7 @@ E aplicamos diversas melhorias para deixar arquitetura dessa aplicação mais es
 Como? Reescrevendo em Golang? Quebrando em microserviços? Migrando o banco SQL para MongoDB? NÃO!
 
 Configurando load balancer e replicando instâncias do monolito, utilizando processamento assíncrono com mensageria, 
-cache distribuído
-
-Utilizando processamento assíncrono, cache, escalabilidade horizontal
+cache distribuído para performance em consultas, armazenamento externo para persistência de relatórios CVS e mais!
 
 ## Problemas na arquitetura e decisões de resolução
 
@@ -122,8 +120,9 @@ docker compose exec app php artisan migrate --seed
 
 Muitos dados serão criados (1000 especialistas com 1000 avaliações cada), então essa última etapa será demorada. Enquanto ela executa, a API já estará acessível através do endereço http://localhost:8123/api. Além disso, o endereço http://localhost:8025 provê acesso ao serviço de e-mail _Mailpit_.
 
-## Para se autenticar na aplicação:
-    {
-        "email": "email@example.com",
-        "password": "12345678"
-    }
+8. Para se autenticar na aplicação:
+```shell
+curl -X POST http://localhost:8123/api/login \
+-H "Content-Type: application/json" \
+-d '{"email": "email@example.com", "password": "12345678"}'
+```
