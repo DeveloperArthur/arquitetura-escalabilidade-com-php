@@ -74,7 +74,7 @@ serviços são projetados para oferecer maior escalabilidade dos arquivos e forn
 para garantir alta disponibilidade.
 
   **Para fins didáticos** nós [mapeamos a pasta pública da máquina local no load
-  balancer](), para que ele consiga servir os arquivos, simbolizando nosso componente de armazenamento externo
+  balancer](https://github.com/DeveloperArthur/arquitetura-escalabilidade-com-php/commit/28c8e5bb60bd058fca20f0fc2b3bbae92b5c0c60), para que ele consiga servir os arquivos, simbolizando nosso componente de armazenamento externo
 
 
 Solução final após todas aplicações de melhorias:
