@@ -52,16 +52,30 @@ balanceamento de carga também, mas traz outro componente que devemos gerenciar 
 ele responde em 5 segundos em média, pois se trata de uma query com join e há muitos dados na aplicação, portanto
 essa query demanda muito processamento
 
-    Para resolver esse problema [implementamos um cache distribuído na aplicação](), para diminuir o tempo de respostas 
+    Para resolver esse problema [implementamos um cache distribuído na aplicação](https://github.com/DeveloperArthur/arquitetura-escalabilidade-com-php/commit/5aee43ee2b0c01ecf1bdabf34d14fe9d3f04b20b), para diminuir o tempo de respostas 
 á query custosa, então cacheamos essa lista de avaliados, e o tempo de resposta caiu para 90ms
 
 - Alteramos o endpoint que lista os 10 profissionais mais bem avaliados, invés de cachear a lista que vem do banco de 
-dados, [estamos gerando esse relatório como CSV de forma assíncrona e enviando o link por email após processamento](), 
-para isso foi necessário criar uma nova classe de Job com o comando `docker compose exec -u $(id -u) app php artisan make:job GenerateReportJob`,
+dados, [estamos gerando esse relatório como CSV de forma assíncrona e enviando o link por email após processamento](https://github.com/DeveloperArthur/arquitetura-escalabilidade-com-php/commit/abd0361f3fbef78130c56e85e1d8dafa344504c1), 
+ou seja, estamos utilizando mensageria para processar em plano de fundo um relatório demorado, e para isso foi necessário 
+criar uma nova classe de Job com o comando `docker compose exec -u $(id -u) app php artisan make:job GenerateReportJob`,
 foi necessário criar uma nova classe para representar o email: `docker compose exec -u $(id -u) app php artisan make:mail ReportGenerated`,
 e foi necessário rodar este comando: `docker compose exec app php artisan storage:link` para tornar o arquivo CSV acessível
 dentro de uma pasta pública no servidor, por fim precisa rodar o comando `docker compose exec app php artisan queue:work`
 para startar o Job
+
+- Ao tentar disponibilizar os relatórios gerados via email, nos deparamos com um problema, pois os arquivos CSV's estão
+sendo salvos no mesmo servidor onde a aplicação é executada, e como temos N servidores, pode ser que o usuário clique 
+para baixar e o load balancer redirecione para o servidor que não tem o relatório
+
+    Por isso em uma arquitetura 
+distribuída o ideal é salvarmos os arquivos em um componente externo, como Amazon S3 ou Google Cloud Storage, pois esses
+serviços são projetados para oferecer maior escalabilidade dos arquivos e fornecem redundância e replicação de dados 
+para garantir alta disponibilidade.
+
+  **Para fins didáticos** nós [mapeamos a pasta pública da máquina local no load
+  balancer](), para que ele consiga servir os arquivos, simbolizando nosso componente de armazenamento externo
+
 
 Solução final após todas aplicações de melhorias:
 
