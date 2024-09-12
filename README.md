@@ -1,12 +1,13 @@
 # Projeto do curso de _Arquitetura e Escalabilidade em PHP_
 
-Nesse curso tínhamos uma aplicação legada em PHP, cheia de problemas de performance, disponibilidade etc:
+Nesse curso tínhamos uma aplicação monolita legada em PHP, cheia de problemas de performance, disponibilidade, não
+escala quando o volume de requests crescem, etc:
 
 <img src="./assets/legacy.webp">
 
-E aprendemos como melhorar arquitetura dessa aplicação para que ela tenha escalabilidade
+E aplicamos diversas melhorias para deixar arquitetura dessa aplicação mais escalável
 
-Como? Reescrevendo em Golang? Quebrando em microserviços? Escalando o banco de dados com RDS Aurora? NÃO!
+Como? Reescrevendo em Golang? Quebrando em microserviços? Migrando o banco SQL para MongoDB? NÃO!
 
 Configurando load balancer e replicando instâncias do monolito, utilizando processamento assíncrono com mensageria, 
 cache distribuído
@@ -48,9 +49,19 @@ meio de token, invés de sessão](https://github.com/DeveloperArthur/arquitetura
 balanceamento de carga também, mas traz outro componente que devemos gerenciar em nossa infraestrutura.
 
 - Temos um endpoint nessa aplicação que lista os 10 profissionais mais bem avaliados, esse endpoint é muito lento,
-ele responde em 5 segundos em média, pois se trata de uma query pesada e complexa, com join e há muitos dados na aplicação 
+ele responde em 5 segundos em média, pois se trata de uma query com join e há muitos dados na aplicação, portanto
+essa query demanda muito processamento
 
-    Para resolver esse problema [implementamos um cache distribuído na aplicação](), e o tempo de resposta caiu para 90ms
+    Para resolver esse problema [implementamos um cache distribuído na aplicação](), para diminuir o tempo de respostas 
+á query custosa, então cacheamos essa lista de avaliados, e o tempo de resposta caiu para 90ms
+
+- Alteramos o endpoint que lista os 10 profissionais mais bem avaliados, invés de cachear a lista que vem do banco de 
+dados, [estamos gerando esse relatório como CSV de forma assíncrona e enviando o link por email após processamento](), 
+para isso foi necessário criar uma nova classe de Job com o comando `docker compose exec -u $(id -u) app php artisan make:job GenerateReportJob`,
+foi necessário criar uma nova classe para representar o email: `docker compose exec -u $(id -u) app php artisan make:mail ReportGenerated`,
+e foi necessário rodar este comando: `docker compose exec app php artisan storage:link` para tornar o arquivo CSV acessível
+dentro de uma pasta pública no servidor, por fim precisa rodar o comando `docker compose exec app php artisan queue:work`
+para startar o Job
 
 Solução final após todas aplicações de melhorias:
 
