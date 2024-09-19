@@ -74,10 +74,53 @@ para garantir alta disponibilidade.
   **Para fins didáticos** nós [mapeamos a pasta pública da máquina local no load
   balancer](https://github.com/DeveloperArthur/arquitetura-escalabilidade-com-php/commit/28c8e5bb60bd058fca20f0fc2b3bbae92b5c0c60), para que ele consiga servir os arquivos, simbolizando nosso componente de armazenamento externo
 
-
 Solução final após todas aplicações de melhorias:
 
 <img src="./assets/after.webp">
+
+## Melhorando disponibilidade da aplicação
+- **I/O não bloqueante**
+
+    A aplicação estava utilizando PHP com FastCGI, e utilizando FastCGI cada requisição é tratada de forma independente, 
+ou seja, cada vez que uma requisição chega, o PHP carrega o framework Laravel, verifica a rota, executa o controller,
+retorna a resposta e mata o processo, isso se repete cada vez que uma requisição chega no servidor 
+(isso não ocorre em outras linguagens como Java, C#, Node.js etc), então utilizamos utilizamos Swoole e Octane 
+para melhorar a performance da nossa aplicação, a ideia do Swoole é subir aplicação apenas uma vez, e manter a aplicação 
+PHP e seus recursos em memória, sem ficar caindo e levantando aplicação á cada request, antes de utilizar Swoole 
+e configurar Octane na aplicação, a app respondia algo próximo de 1.100 requisições no intervalo de 10 segundos, 
+depois da configuração: 5.433 requisições nesse mesmo período de tempo...
+    
+    Outra coisa que estava acontecendo e poderia ser melhorada com Swoole era com relação a abertura de conexões no banco 
+de dados, chegava uma requisição no banco de dados, era aberta uma conexão, após a requisição fechava-se a conexão, 
+ficava-se abrindo e fechando conexões a cada requisição (em Java utilizamos pool de
+conexões para evitar o custo de abrir e fechar conexões constantemente)
+
+- **Profiling**
+
+    Para realizar alterações na arquitetura, precisamos fazer isso baseado em números e em fatos, por isso é importante 
+as técnicas de monitoramento, imagine que você identifique que uma query está lenta, ai já toma decisão e adiciona
+um serviço de fila, ou um cache distribuido, e nem sempre é isso, é importante medir o que precisamos otimizar, porque
+não sabemos que otimização é necessária, quando encontramos um gargalo na arquitetura, uma das formas de coletar esses
+dados é através da prática de Profiling, o professor citou algumas das ferramentas profissionais de Profiling como
+New Relic e Blackfire
+
+- **Como garantir a disponibilidade lidando com DDoS**
+    
+    Precisamos limitar quanto um cliente pode utilizar dos nossos recursos para evitar ataques de DDoS ou consumos 
+desenfreados sem necessidade, como por exemplo um cliente gerando dashboard em tempo real chamando um endpoint que 
+executa uma query custosa
+
+    Para lidarmos com essa situação, configuramos um Rate Limit de 60 requests por minuto, limitando por id 
+(caso usuário esteja logado), se o usuário estiver deslogado o limite será feito por IP, ou seja, cada cliente vai poder
+fazer no máximo 60 requests por minuto, se tentar fazer +1 request, receberá um erro 429, e poderá enviar novas requests 
+depois de algum tempo
+    
+    Se mesmo depois de excederem o limite, continuarem enviando requests, podemos estudar a possibilidade de adicionar
+regras de bloqueio, se as requisições estiverem sendo feitas por IPs desconhecidos ou usuários mal intencionados, 
+bloqueá-los a nível de rede poupará muito os recursos da aplicação
+
+- **Como documentar decisões arquiteturais com C4 model e como escrever registros de decisões arquiteturais seguindo
+o conceito de ADR**
 
 ## Setup inicial
 
